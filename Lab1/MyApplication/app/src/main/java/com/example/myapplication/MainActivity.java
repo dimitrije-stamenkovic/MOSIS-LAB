@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import static android.widget.Toast.makeText;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static EditText txtMsg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
