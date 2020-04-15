@@ -1,5 +1,6 @@
 package dimitrijestefan.mosis.elfak;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -58,14 +59,14 @@ public class MainActivity extends AppCompatActivity {
             break;
             case R.id.my_places_list_item:{
                 Toast.makeText(this, "My places ", Toast.LENGTH_SHORT).show();
-               // Intent k= new Intent(this, MyPlaceList.class);
-               // startActivity(k);
+                Intent k= new Intent(this, MyPlacesList.class);
+                startActivity(k);
             }
             break;
             case R.id.about_item:{
                 Toast.makeText(this, "About", Toast.LENGTH_SHORT).show();
-               // Intent i =new Intent(this, About.class);
-              //  startActivity(i);
+                Intent i =new Intent(this, About.class);
+                startActivity(i);
             }
             break;
         }
