@@ -1,11 +1,13 @@
 package dimitrijestefan.mosis.elfak;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    static  int NEW_PLACE=1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
             break;
             case R.id.new_place_item:{
                 Toast.makeText(this,"New place ",Toast.LENGTH_SHORT).show();
+                Intent k= new Intent(this,EditMyPlaceActivity.class);
+                startActivityForResult(k,NEW_PLACE);
             }
             break;
             case R.id.my_places_list_item:{
@@ -73,5 +78,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode== Activity.RESULT_OK){
+            Toast.makeText(this, "New place added",Toast.LENGTH_SHORT).show();
+        }
     }
 }
