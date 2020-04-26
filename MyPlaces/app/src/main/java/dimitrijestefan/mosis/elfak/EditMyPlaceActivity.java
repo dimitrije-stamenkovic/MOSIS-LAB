@@ -21,10 +21,28 @@ import android.widget.Toast;
 
 public class EditMyPlaceActivity extends AppCompatActivity implements View.OnClickListener {
 
+    int position = -1;
+    boolean editMode = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_my_place);
+        try {
+            Intent listIntent = getIntent();
+            Bundle positionBundle = listIntent.getExtras();
+            if(positionBundle != null){
+                position = positionBundle.getInt("position");
+            }else{
+                editMode=false;
+            }
+
+
+        }catch (Exception e){
+            editMode=false;
+            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+        }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -38,6 +56,18 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        if(!editMode){
+            finishedButton.setEnabled(false);
+            finishedButton.setText("Add");
+        }else if (position >=0){
+            finishedButton.setText("Save");
+            MyPlace place =MyPlacesData.getInstance().getPlace(position);
+            nameEditText.setText(place.getName());
+            EditText descEditText=(EditText) findViewById(R.id.editmyplace_desc_edit);
+            descEditText.setText(place.getDescription());
+        }
+
         nameEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -69,8 +99,16 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
                 String desc = etDesc.getText().toString();
 
 
-                MyPlace place = new MyPlace(name, desc);
-                MyPlacesData.getInstance().addNewPlace(place);
+
+                if(!editMode){
+                    MyPlace place = new MyPlace(name,desc);
+                    MyPlacesData.getInstance().addNewPlace(place);
+                }else{
+                    MyPlace place = MyPlacesData.getInstance().getPlace(position);
+                    place.setName(name);
+                    place.setDescription(desc);
+                }
+
 
                 setResult(Activity.RESULT_OK);
                 finish();
