@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -85,7 +86,27 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
+        Button locationButton = (Button) findViewById(R.id.editmyplace_location_button);
+        locationButton.setOnClickListener(this);
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try{
+            if(resultCode == Activity.RESULT_OK){
+                String lon = data.getExtras().getString("lon");
+                EditText lonText= (EditText) findViewById(R.id.editmyplace_lon_edit);
+                lonText.setText(lon);
+                String lat = data.getExtras().getString("lat");
+                EditText latText= (EditText) findViewById(R.id.editmyplace_lat_edit);
+                latText.setText(lat);
+            }
+
+        }catch (Exception e){
+            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -97,16 +118,22 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
                 String name = etName.getText().toString();
                 EditText etDesc = (EditText) findViewById(R.id.editmyplace_desc_edit);
                 String desc = etDesc.getText().toString();
-
-
+                EditText latEdit = (EditText) findViewById(R.id.editmyplace_lat_edit);
+                String lat = latEdit.getText().toString();
+                EditText lonEdit = (EditText) findViewById(R.id.editmyplace_lon_edit);
+                String lon = lonEdit.getText().toString();
 
                 if(!editMode){
                     MyPlace place = new MyPlace(name,desc);
+                    place.setLatitude(lat);
+                    place.setLongitude(lon);
                     MyPlacesData.getInstance().addNewPlace(place);
                 }else{
                     MyPlace place = MyPlacesData.getInstance().getPlace(position);
                     place.setName(name);
                     place.setDescription(desc);
+                    place.setLatitude(lat);
+                    place.setLongitude(lon);
                 }
 
 
@@ -119,7 +146,13 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             }
+            case R.id.editmyplace_location_button:{
+                Intent i = new Intent(this,MyPlacesMapsActivity.class);
+                i.putExtra("state",MyPlacesMapsActivity.SELECT_COORDINATES);
+                startActivityForResult(i,1);
+            }
         }
+
 
     }
 

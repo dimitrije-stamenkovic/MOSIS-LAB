@@ -25,6 +25,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/viewmyplace_desc_label"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editmyplace_lat_label"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewmyplace_lat_label"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editmyplace_lon_label"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewmyplace_lon_label"/>
 
     <Button
         android:layout_width="match_parent"
