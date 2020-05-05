@@ -37,12 +37,11 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
             }else{
                 editMode=false;
             }
-
-
         }catch (Exception e){
             editMode=false;
             Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
         }
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -55,8 +54,6 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
         cancelButton.setOnClickListener(this);
         EditText nameEditText=(EditText)findViewById(R.id.editmyplace_name_edit);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         if(!editMode){
             finishedButton.setEnabled(false);
@@ -67,6 +64,11 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
             nameEditText.setText(place.getName());
             EditText descEditText=(EditText) findViewById(R.id.editmyplace_desc_edit);
             descEditText.setText(place.getDescription());
+            EditText latText=(EditText)findViewById(R.id.editmyplace_lat_edit);
+            latText.setText(place.getLatitude());
+            EditText lonText=(EditText) findViewById(R.id.editmyplace_lon_edit);
+            lonText.setText(place.getLongitude());
+
         }
 
         nameEditText.addTextChangedListener(new TextWatcher() {
@@ -89,6 +91,9 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
         Button locationButton = (Button) findViewById(R.id.editmyplace_location_button);
         locationButton.setOnClickListener(this);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
     }
 
     @Override
@@ -109,6 +114,7 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+
     @Override
     public void onClick(View v) {
 
@@ -118,6 +124,7 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
                 String name = etName.getText().toString();
                 EditText etDesc = (EditText) findViewById(R.id.editmyplace_desc_edit);
                 String desc = etDesc.getText().toString();
+
                 EditText latEdit = (EditText) findViewById(R.id.editmyplace_lat_edit);
                 String lat = latEdit.getText().toString();
                 EditText lonEdit = (EditText) findViewById(R.id.editmyplace_lon_edit);

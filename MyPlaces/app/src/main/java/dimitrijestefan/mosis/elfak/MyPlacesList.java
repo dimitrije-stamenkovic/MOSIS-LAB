@@ -56,9 +56,9 @@ public class MyPlacesList extends AppCompatActivity {
                 menu.add(0,1,1,"View place");
                 menu.add(0,2,2,"Edit place");
                 menu.add(0,3,3,"Delete place");
+                menu.add(0,4,4,"Show on map");
             }
         });
-
 
 
 
@@ -77,11 +77,13 @@ public class MyPlacesList extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_my_places_list, menu);
         return true;
     }
+
 
 
     @Override
@@ -108,9 +110,11 @@ public class MyPlacesList extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            Toast.makeText(this, "New place added", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(this, "New place added", Toast.LENGTH_SHORT).show();
+            ListView myPlacesList = (ListView)findViewById(R.id.my_places_list);
+            myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, MyPlacesData.getInstance().getMyPlaces()));
         }
-        // vec je osvezeno, nema potrebe za dodavanje adaptera
+
     }
 
     @Override
@@ -131,6 +135,13 @@ public class MyPlacesList extends AppCompatActivity {
         }else if (item.getItemId() ==3){
             MyPlacesData.getInstance().deletePlace(info.position);
             setList();
+        }else if(item.getItemId()==4){
+            i= new Intent(this, MyPlacesMapsActivity.class);
+            i.putExtra("state",MyPlacesMapsActivity.CENTER_PLACE_ON_MAP);
+            MyPlace place= MyPlacesData.getInstance().getPlace(info.position);
+            i.putExtra("lat",place.getLatitude());
+            i.putExtra("lon", place.getLongitude());
+            startActivityForResult(i,2);
         }
 
         return super.onContextItemSelected(item);

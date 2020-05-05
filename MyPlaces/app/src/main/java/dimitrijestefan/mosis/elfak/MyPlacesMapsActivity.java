@@ -22,21 +22,27 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    static int NEW_PLACE=1;
-    public static final int SHOW_MAP=0;
-    public static final int CENTER_PLACE_ON_MAP=1;
-    public static final int SELECT_COORDINATES=2;
+    static int NEW_PLACE = 1;
+    public static final int SHOW_MAP = 0;
+    public static final int CENTER_PLACE_ON_MAP = 1;
+    public static final int SELECT_COORDINATES = 2;
 
     private int state = 0;
-    private boolean selCoorsEnabled=false;
-    private  LatLng placeLoc;
+    private boolean selCoorsEnabled = false;
+    private LatLng placeLoc;
+    private HashMap<Marker, Integer> markerPlaceIdMap;
 
     static final int PERMISSION_ACCESS_FINE_LOCATION = 1;
 
@@ -45,19 +51,20 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_places_maps);
 
-        try{
+        try {
             Intent mapIntent = getIntent();
             Bundle mapBundle = mapIntent.getExtras();
-            if(mapBundle != null){
-                state = mapBundle.getInt("state");
-                if(state == CENTER_PLACE_ON_MAP){
+            if (mapBundle != null) {
+                this.state = mapBundle.getInt("state");
+                if (state == CENTER_PLACE_ON_MAP) {
                     String placeLat = mapBundle.getString("lat");
                     String placeLon = mapBundle.getString("lon");
-                    placeLoc = new LatLng(Double.parseDouble(placeLat),Double.parseDouble(placeLon));
+                    placeLoc = new LatLng(Double.parseDouble(placeLat), Double.parseDouble(placeLon));
                 }
             }
-        }catch (Exception e){
-            Log.d("ERROR","ERROR READING STATE");
+        }
+        catch (Exception e) {
+            Log.d("ERROR", "ERROR READING STATE");
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -67,20 +74,19 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        if(state != SELECT_COORDINATES){
+        if (state != SELECT_COORDINATES) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(MyPlacesMapsActivity.this , EditMyPlaceActivity.class);
-                    startActivityForResult(i,NEW_PLACE);
+                    Intent i = new Intent(MyPlacesMapsActivity.this, EditMyPlaceActivity.class);
+                    startActivityForResult(i, NEW_PLACE);
                 }
             });
-        }else{
+        } else {
             ViewGroup layout = (ViewGroup) fab.getParent();
-            if(null!=layout)
+            if (null != layout)
                 layout.removeView(fab);
         }
-
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -101,48 +107,37 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-
-        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PERMISSION_ACCESS_FINE_LOCATION);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_ACCESS_FINE_LOCATION);
         }
-        else{
-            if(state == SHOW_MAP)
+        else
+            {
+            if (state == SHOW_MAP)
                 mMap.setMyLocationEnabled(true);
-            else if (state == CENTER_PLACE_ON_MAP)
+            else if(state==SELECT_COORDINATES)
                 setOnMapClickListener();
-            else{
-//                LatLng sydney = new LatLng(-34, 151);
-//               mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//              mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom( new LatLng(-34, 151),15));
+            else
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc,15));
 
-
-                //                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc,15));
-                // IZNAD LINIJA JE U VEZBI NE MOZE DA SE REFERENCIRA NULL tj. placeLoc
+            addMyPlaceMarkers();
             }
-
-
-        }
-
-        // Add a marker in Sydney and move the camera
-//        LatLng sydney = new LatLng(-34, 151);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
+
     private void setOnMapClickListener() {
-        if(mMap!=null){
+        if (mMap != null) {
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    if(state == SELECT_COORDINATES && selCoorsEnabled){
+                    if (state == SELECT_COORDINATES && selCoorsEnabled) {
                         String lon = Double.toString(latLng.longitude);
                         String lat = Double.toString(latLng.latitude);
-                        Intent locationIntent=new Intent();
-                        locationIntent.putExtra("lon",lon);
-                        locationIntent.putExtra("lat",lat);
-                        setResult(Activity.RESULT_OK,locationIntent);
+                        Intent locationIntent = new Intent();
+                        locationIntent.putExtra("lon", lon);
+                        locationIntent.putExtra("lat", lat);
+                        setResult(Activity.RESULT_OK, locationIntent);
                         finish();
                     }
                 }
@@ -150,38 +145,34 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case PERMISSION_ACCESS_FINE_LOCATION:{
-                if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    if(state == SHOW_MAP)
+        switch (requestCode) {
+            case PERMISSION_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (state == SHOW_MAP)
                         mMap.setMyLocationEnabled(true);
-                    else if (state == CENTER_PLACE_ON_MAP)
+                    else if (state == SELECT_COORDINATES)
                         setOnMapClickListener();
-                    else{
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom( new LatLng(-34, 151),15));
-                        //                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc,15));
-                        // IZNAD LINIJA JE U VEZBI NE MOZE DA SE REFERENCIRA NULL tj. placeLoc
-                        // setOnMapClickListener(); je prebacen u on OptionsItemSelected
-                        // kad se klinke na Select options moze da se izabere lokacija
-                    }
-
-
+                    else
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
+                    addMyPlaceMarkers();
                 }
                 return;
             }
         }
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if(state == SELECT_COORDINATES && !selCoorsEnabled){
-            menu.add(0,1,1,"Select Coordinates");
-            menu.add(0,2,2,"Cancel");
+        if (state == SELECT_COORDINATES && !selCoorsEnabled) {
+            menu.add(0, 1, 1, "Select Coordinates");
+            menu.add(0, 2, 2, "Cancel");
             return super.onCreateOptionsMenu(menu);
         }
-        getMenuInflater().inflate(R.menu.menu_my_places_maps,menu);
+        getMenuInflater().inflate(R.menu.menu_my_places_maps, menu);
         return true;
     }
 
@@ -191,17 +182,18 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
         int id = item.getItemId();
 
 
-        if(state == SELECT_COORDINATES && !selCoorsEnabled){
-            if(id ==1){
-                selCoorsEnabled=true;
-                setOnMapClickListener();
+        if (state == SELECT_COORDINATES && !selCoorsEnabled) {
+            if (id == 1) {
+                selCoorsEnabled = true;
+                //setOnMapClickListener();
                 Toast.makeText(this, String.valueOf(selCoorsEnabled), Toast.LENGTH_SHORT).show();
                 Toast.makeText(this, "Select coordinates", Toast.LENGTH_SHORT).show();
-            }else if (id ==2 ){
+            } else if (id == 2) {
                 setResult(Activity.RESULT_CANCELED);
                 finish();
             }
-        }else {
+        }
+        else {
             if (id == R.id.new_place_item) {
                 Intent i = new Intent(this, EditMyPlaceActivity.class);
                 startActivityForResult(i, NEW_PLACE);
@@ -215,4 +207,36 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    private  void addMyPlaceMarkers(){
+        ArrayList<MyPlace> places= MyPlacesData.getInstance().getMyPlaces();
+        markerPlaceIdMap= new HashMap<Marker, Integer>((int) ((double)places.size()*1.2));
+        for(int i=0; i<places.size();i++){
+            MyPlace place=places.get(i);
+            String lat=place.getLatitude();
+            String lon=place.getLongitude();
+            LatLng loc=new LatLng(Double.parseDouble(lat),Double.parseDouble(lon));
+            MarkerOptions markerOptions= new MarkerOptions();
+            markerOptions.position(loc);
+            //nismo nasli na sajtu sliku za fav place
+           markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_favorite_place_24dp));
+            markerOptions.title(place.getName());
+            Marker marker= mMap.addMarker(markerOptions);
+            markerPlaceIdMap.put(marker,i);
+
+        }
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Intent k= new Intent(MyPlacesMapsActivity.this, ViewMyPlaceActivity.class);
+                int i= markerPlaceIdMap.get(marker);
+                k.putExtra("position",i);
+                startActivity(k);
+                return  true;
+
+            }
+        });
+    }
+
 }

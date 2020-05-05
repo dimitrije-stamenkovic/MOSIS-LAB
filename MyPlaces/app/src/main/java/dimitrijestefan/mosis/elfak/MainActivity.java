@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         switch (id){
             case R.id.show_map_item :{
-                Toast.makeText(this,"Show map", Toast.LENGTH_SHORT).show();
+             //   Toast.makeText(this,"Show map", Toast.LENGTH_SHORT).show();
                 Intent k= new Intent(this, MyPlacesMapsActivity.class);
                 k.putExtra("state",MyPlacesMapsActivity.SHOW_MAP);
                 startActivity(k);
