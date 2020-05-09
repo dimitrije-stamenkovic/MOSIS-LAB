@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "748338261160",
+    "firebase_url": "https://myplaces-817ff.firebaseio.com",
+    "project_id": "myplaces-817ff",
+    "storage_bucket": "myplaces-817ff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748338261160:android:e14e6cce0ac626716c269d",
+        "android_client_info": {
+          "package_name": "dimitrijestefan.mosis.elfak"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "748338261160-818uguudocpdpk59tsu2dm1firicsqeu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvo5xjs3iEVvPit2Xg-xQZ6KfX6eLnh-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "748338261160-818uguudocpdpk59tsu2dm1firicsqeu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

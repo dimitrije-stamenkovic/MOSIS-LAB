@@ -61,13 +61,13 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
         }else if (position >=0){
             finishedButton.setText("Save");
             MyPlace place =MyPlacesData.getInstance().getPlace(position);
-            nameEditText.setText(place.getName());
+            nameEditText.setText(place.name);
             EditText descEditText=(EditText) findViewById(R.id.editmyplace_desc_edit);
-            descEditText.setText(place.getDescription());
+            descEditText.setText(place.description);
             EditText latText=(EditText)findViewById(R.id.editmyplace_lat_edit);
-            latText.setText(place.getLatitude());
+            latText.setText(place.latitude);
             EditText lonText=(EditText) findViewById(R.id.editmyplace_lon_edit);
-            lonText.setText(place.getLongitude());
+            lonText.setText(place.longitude);
 
         }
 
@@ -132,15 +132,11 @@ public class EditMyPlaceActivity extends AppCompatActivity implements View.OnCli
 
                 if(!editMode){
                     MyPlace place = new MyPlace(name,desc);
-                    place.setLatitude(lat);
-                    place.setLongitude(lon);
+                    place.latitude=lat;
+                    place.longitude=lon;
                     MyPlacesData.getInstance().addNewPlace(place);
                 }else{
-                    MyPlace place = MyPlacesData.getInstance().getPlace(position);
-                    place.setName(name);
-                    place.setDescription(desc);
-                    place.setLatitude(lat);
-                    place.setLongitude(lon);
+                   MyPlacesData.getInstance().updatePlace(position,name,desc,lon,lat);
                 }
 
 
