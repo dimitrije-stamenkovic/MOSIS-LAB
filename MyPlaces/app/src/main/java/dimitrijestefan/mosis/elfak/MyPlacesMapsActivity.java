@@ -1,6 +1,7 @@
 package dimitrijestefan.mosis.elfak;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -31,7 +32,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapReadyCallback,MyPlacesData.ListUpdatedEventListener{
 
     private GoogleMap mMap;
     static int NEW_PLACE = 1;
@@ -49,6 +50,7 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+       MyPlacesData.getInstance().setEventListener(this);
         setContentView(R.layout.activity_my_places_maps);
 
         try {
@@ -210,6 +212,7 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
 
 
     private  void addMyPlaceMarkers(){
+
         ArrayList<MyPlace> places= MyPlacesData.getInstance().getMyPlaces();
         markerPlaceIdMap= new HashMap<Marker, Integer>((int) ((double)places.size()*1.2));
         for(int i=0; i<places.size();i++){
@@ -238,5 +241,17 @@ public class MyPlacesMapsActivity extends AppCompatActivity implements OnMapRead
             }
         });
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode== Activity.RESULT_OK){
+            onListUpdated();
+        }
+    }
 
+    @Override
+    public void onListUpdated() {
+        mMap.clear();
+        addMyPlaceMarkers();
+    }
 }

@@ -23,18 +23,25 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MyPlacesList extends AppCompatActivity {
+
+
+
+public class MyPlacesList extends AppCompatActivity implements MyPlacesData.ListUpdatedEventListener {
 
     ArrayList<String> places;
     static int NEW_PLACE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_places_list);
 
         ListView myPlacesList = (ListView)findViewById(R.id.my_places_list);
-
+        MyPlacesData.getInstance().setEventListener(this);
         myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, MyPlacesData.getInstance().getMyPlaces()));
+       // MyPlacesData.getInstance().setEventListener(this);
+
+
 
         myPlacesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -84,6 +91,9 @@ public class MyPlacesList extends AppCompatActivity {
         return true;
     }
 
+   public void onListUpdated(){
+       setList();
+    }
 
 
     @Override
@@ -151,6 +161,7 @@ public class MyPlacesList extends AppCompatActivity {
         ListView myPlacesList = (ListView) findViewById(R.id.my_places_list);
         myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this,android.R.layout.simple_list_item_1,MyPlacesData.getInstance().getMyPlaces()));
     }
+
 
 }
 

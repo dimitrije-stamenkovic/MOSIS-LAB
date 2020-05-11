@@ -1,5 +1,8 @@
 package dimitrijestefan.mosis.elfak;
 
+import android.provider.ContactsContract;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -13,21 +16,23 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MyPlacesData {
+public class MyPlacesData  {
 
     private ArrayList<MyPlace> myPlaces;
     private HashMap<String,Integer> myPlacesKeyIndexMapping;
     private DatabaseReference database;
     private static final String FIREBASE_CHILD="my-places";
+    public ListUpdatedEventListener updateListener;
+
 
     private MyPlacesData() {
 
         myPlaces= new ArrayList<MyPlace>();
         myPlacesKeyIndexMapping = new HashMap<String, Integer>();
         database = FirebaseDatabase.getInstance().getReference();
+
         database.child(FIREBASE_CHILD).addChildEventListener(childEventListener);
         database.child(FIREBASE_CHILD).addListenerForSingleValueEvent(parentEventListener);
-      //  myPlaces.add(new MyPlace("nis", "nije lose"));
 
     }
 
@@ -42,6 +47,7 @@ public class MyPlacesData {
     public  ArrayList<MyPlace> getMyPlaces(){
         return  myPlaces;
     }
+
     public void addNewPlace(MyPlace place){
         String key = database.push().getKey();
         myPlaces.add(place);
@@ -68,6 +74,10 @@ public class MyPlacesData {
         myPlace.longitude=lng;
         database.child(FIREBASE_CHILD).child(myPlace.key).setValue(myPlace);
     }
+    public  void setEventListener(ListUpdatedEventListener listener){
+        updateListener=listener;
+    }
+
 
     private void recreateKeyIndexMapping() {
         myPlacesKeyIndexMapping.clear();
@@ -80,16 +90,52 @@ public class MyPlacesData {
     ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            String myPlaceKey=dataSnapshot.getKey();
+            if(!myPlacesKeyIndexMapping.containsKey(myPlaceKey))
+            {
+               MyPlace myPlace=dataSnapshot.getValue(MyPlace.class);
+                myPlace.key=myPlaceKey;
+                myPlaces.add(myPlace);
+                myPlacesKeyIndexMapping.put(myPlaceKey, myPlaces.size()-1);
+                if(updateListener!=null)
+                    updateListener.onListUpdated();
+
+            }
+
+
 
         }
 
         @Override
         public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+            String myPlaceKey=dataSnapshot.getKey();
+            MyPlace myPlace=dataSnapshot.getValue(MyPlace.class);
+            myPlace.key=myPlaceKey;
+            if(myPlacesKeyIndexMapping.containsKey(myPlaceKey)){
+                int index= myPlacesKeyIndexMapping.get(myPlaceKey);
+                myPlaces.set(index,myPlace);
+            }else{
+                myPlaces.add(myPlace);
+                myPlacesKeyIndexMapping.put(myPlaceKey,myPlaces.size()-1);
+            }
+            if(updateListener!=null)
+                updateListener.onListUpdated();
         }
 
         @Override
         public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+            String myPlaceKey= dataSnapshot.getKey();
+            if(myPlacesKeyIndexMapping.containsKey(myPlaceKey))
+            {
+                int index=myPlacesKeyIndexMapping.get(myPlaceKey);
+                myPlaces.remove(index);
+                recreateKeyIndexMapping();
+                if(updateListener!=null){
+                    updateListener.onListUpdated();
+
+                }
+            }
+
 
         }
 
@@ -107,7 +153,11 @@ public class MyPlacesData {
     ValueEventListener parentEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            if(updateListener!=null) {
 
+                updateListener.onListUpdated();
+
+            }
         }
 
         @Override
@@ -115,6 +165,13 @@ public class MyPlacesData {
 
         }
     };
+
+
+
+    public interface ListUpdatedEventListener {
+        public void onListUpdated();
+    }
+
 
 
 }
